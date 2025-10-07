@@ -1,3 +1,2 @@
 # 00_lab_genomica_comparata
-eggergfrewfwref
-wf3f3wfwefwefwefe
+
