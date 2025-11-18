@@ -1,2 +1,2 @@
-# 00_lab_genomica_comparata
+# Lab_genomica_comparata
 
