@@ -2,7 +2,7 @@
 
 ### Github features
 ```
-git add <input_file> #upload a file in the staging area
+git add <input_file> #[upload a file in the staging area]
 git commit -m "" #create a commit
 git push #push files from staging area to remote repository
 git status #check files which have not been uploaded yet
