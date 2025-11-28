@@ -19,6 +19,6 @@ trimmomatic PE -threads 20 -phred33 SRR11672503_1.fastq.gz SRR11672503_2.fastq.g
 
 ```
 conda activate kat
-kat hist -t 11 -m 227054799 -o kat_stats SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq
+kat hist -t 11 -m 27 -o kat_stats SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq
 ```
 
