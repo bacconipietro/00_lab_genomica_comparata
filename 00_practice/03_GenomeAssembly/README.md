@@ -2,7 +2,7 @@
 
 ## 00_assemblyRaw
 
-#### Assembling long reads
+### Assembling long reads
 
 ```
 ln -s /home/PERSONALE/mirko.martini3/Lab_CompGeno/00_practice/00_data/00_reads/SRR11672506.fastq.gz
@@ -22,7 +22,7 @@ wtpoa-cns -t 8 -i Anoste_raw.ctg.lay.gz -fo Anoste_raw
 busco -m geno -l $BUSCO/culicidae_odb12 -c 6 -o Anoste_raw -i Anoste_raw.fasta
 ```
 
-#### Mapping shot and long reads to start polishing process
+### Mapping short and long reads to start polishing process
 
 **Mapping script**
 ```
@@ -50,16 +50,72 @@ conda activate assembly
 nano mapping.sh
 bash mapping.sh
 ```
-**mosdepth**
+**Calculate short reads coverage with mosdepth** 
 ```
-mosdepth -n --fast-mode --by 500 <...>
+conda activate assembly
+mosdepth -n --fast-mode --by 500 Anoste_raw_sr Anoste_raw_sr_sorted.bam
+zcat Anoste_raw_sr.regions.bed.gz | awk '{sum += $4;count++} END {print sum / count}' > <OUTFILE_coverage>
 ```
 
 ## 01_polishing
 
-**usign hypo**
+**Using hypo to polish raw assembly**
 ```
-echo -e "$R1\n$R2" > <READS_PATH>
-hypo -d <DRAFT_Contigs> -r @<READS_PATH> -s <APPROXIMATE_GENOMESIZE> -c <SHORT_READSCOVERAGE> -b <SORTED_BAM_SR> -B <SORTED_BAM_PB> -t <NUMBER_THREADS>
+echo -e "$R1\n$R2" > Sr.path
+conda activate assemply
+hypo -d Anoste_raw.fasta -r @Sr.path -s 227054799 -c 136 -b Anoste_raw_sr.bam -B Anoste_raw_lr.bam -t 6
+mv hypo_Anoste_raw.fasta Anoste_pol.fasta 
 ```
+### Quality check on polished assembly**
+  **N50**
+```
+assembly-stats Anoste_pol.fasta
+```
+  **Busco**
+```
+fold -w 80 Anoste_pol.fasta Anoste_pol_one.fasta
+conda activate sequence
+busco -m geno -l $BUSCO/culicidae_odb12 -c 8 -o Anoste_pol_busco -i Anoste_pol.fasta
+cat short_summary #reading busco result summery
+```
+  **KAT**
+```
+conda activate kat
+kat comp -t 8 lo Anoste_pol 'SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq' Anoste_pol.fasta
+```
+## 02_contaminants
 
+### Necessary steps before assembly decontamination
+**Re-mapping short reads**
+```
+minimap2 --secondary=no --MD -ax sr -t 8 Anoste_pol.fasta SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq | samtools view -Sb - > Anoste_pol_sr.bam
+samtools sort -@8 -o Anoste_pol_sr_sorted.bam Anoste_pol_sr.bam
+rm Anoste_pol_sr.bam
+samtools index Anoste_pol_sr_sorted.bam
+```
+**Taxonomic contig annotation**
+```
+conda activate assembly
+blastn -query <ASSEMBLY> -db <PATH/TO/nt/> -outfmt '6 qseqid staxids bitscore std sscinames sskingdoms stitle' -max_target_seqs 25 -max_hsps 1 -num_threads 25 -evalue 1e-25 -out <OUTFILE>  #we didn't run this lines
+
+####mancano dei nomi
+```
+### Decontamination and assembly visualitation
+```
+blobtools create -i Anoste_pol.fasta -b <MAPPING_FILE> -t <BLASTN_FILE> -o <OUTPUT_PREFIX>
+blobtools view -i <JSON_FILE> -o Anoste
+blobtools plot -i <JSON_FILE> -o Anoste
+
+####da finire mancano dei nomi
+```
+**Different command to visualize result**
+```
+grep -v '^##' Anoste_blobDB_table.txt | column -t -s $'\t' | le ss`  ##example
+```
+**Grep and Awk ONLY Arthropoda conting**
+```
+grep "Arthropoda" Anoste.Anoste_blob.blobDB.table.txt > contig_arthropoda.tsv
+wc -l contig_arthropode.tsv
+grep -w -A1 "ctg1" Anoste_pol.fasta | head
+awk '{ if ((NR>1)&&($0~/^>/)) { printf("\n%s", $0); } else if (NR==1) { printf("%s", $0); } else { printf("\t%s", $0); } }' Anoste_pol.fasta | grep -w  -Ff <(cut -f1 contig_arthropoda.tsv) - | tr "\t" "\n" > Anoste_decontaminated.fasta
+```
