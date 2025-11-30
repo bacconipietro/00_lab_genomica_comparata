@@ -112,10 +112,16 @@ blobtools plot -i <JSON_FILE> -o Anoste
 ```
 grep -v '^##' Anoste_blobDB_table.txt | column -t -s $'\t' | le ss`  ##example
 ```
-**Grep and Awk ONLY Arthropoda conting**
+**Grep and Awk ONLY Arthropoda contings**
 ```
 grep "Arthropoda" Anoste.Anoste_blob.blobDB.table.txt > contig_arthropoda.tsv
 wc -l contig_arthropode.tsv
 grep -w -A1 "ctg1" Anoste_pol.fasta | head
 awk '{ if ((NR>1)&&($0~/^>/)) { printf("\n%s", $0); } else if (NR==1) { printf("%s", $0); } else { printf("\t%s", $0); } }' Anoste_pol.fasta | grep -w  -Ff <(cut -f1 contig_arthropoda.tsv) - | tr "\t" "\n" > Anoste_decontaminated.fasta
+```
+
+### Scaffolding 
+```
+ragtag.py correct -t 20 <REFERENCE_GENOME> <DRAFT_GENOME>
+ragtag.py scaffold -C -t 20 -o <OUTPUT_DIX> <REFERENCE_GENOME> <CORRECTED_DRAFTGENOME>
 ```
