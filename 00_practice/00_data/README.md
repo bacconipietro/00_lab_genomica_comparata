@@ -7,7 +7,10 @@ conda activate sequence
 bash ../99_scripts/download_dataset.sh dataset.tsv
 ```
 
-## AGAT process
+## 00_genome 01_gff 
+
+### AGAT process
+
 #### Keeping longest isoform
 ```
 conda activate GAAS
@@ -25,16 +28,18 @@ agat_sp_extract_sequences.pl -g "$gff" -f ../00_genome/${gff/_longest.gff/.fna} 
 done
 ```
 
-## Remove pseudogenes
+### Remove pseudogenes
 ```
 cd 02_raw_proteoms
 bash ../../99_scripts/pseudogenes_find_eliminate.sh
 for pseudo in *.txt, do wc -l "$pseudo" done
 ```
 
-## Modify headers
+## 02_raw_proteoms
+
+### Modify headers
 ```
-# [inside 02_raw_proteoms]
+
 for prot in *.faa; do
 ID=$(basename -s .faa "$prot")
 sed -i.old -E "s/>(rna-XM_[0-9]+\.[0-9]) (gene=gene-.[^ ]+) name=(.[^ ]+) .+$/>${ID}\|\3/" "$prot"
@@ -43,3 +48,13 @@ done
 rm raw_proteoms
 rm *.old
 ```
+
+## Run Orthofinder
+```
+ln -s  /home/PERSONALE/mirko.martini3/Lab_CompGeno/00_practice/00_data/03_dataset/02_proteome/00_aa/Anoste.faa .
+conda activate orthofinder
+cd ..
+orthofinder -t 8 -a 8 -f 02_raw_proteoms/
+```
+
+
