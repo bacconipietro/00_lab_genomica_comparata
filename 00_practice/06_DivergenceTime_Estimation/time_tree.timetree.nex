@@ -1,0 +1,4 @@
+#NEXUS
+Begin trees;
+tree 1 = ((Anodar[&date="0"]:79,(((Anofun[&date="0"]:20.6729,Anoste[&date="0"]:20.6729)[&date="-20.6729"]:10.0564,Anogam[&date="0"]:30.7293)[&date="-30.7293"]:31.5006,rna-gnl[&date="0"]:62.23)[&date="-62.23"]:16.77)[&date="-79"]:73.2535,Toxrut[&date="0"]:152.254)[&date="-152.254"];
+End;
