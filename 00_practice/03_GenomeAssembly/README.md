@@ -59,71 +59,92 @@ busco -m geno -l $BUSCO/culicidae_odb12 -c 6 -o Anoste_raw.busco -i Anoste_raw.f
 ```
 [kat]
 conda activate kat
-kat comp -t 8 -o Anoste_pol 'SRR11672503_1_paired.fastq SRR11672503_2_fastq' Anoste_pol.fasta
+kat comp -t 8 -o Anoste_raw 'SRR11672503_1_paired.fastq SRR11672503_2_fastq' Anoste_raw.fasta
 ```
 
 
-### Mapping short and long reads to start polishing process
 
-**Mapping script**
+
+# 01 Polishing 
+
+We use BlobTools which visualizes the assembly based on GC content, read coverage, and taxonomy. This allows us to spot and remove contaminants, such as bacteria or fungi present in the sample, that were accidentally assembled along with the target genome. 
+
+
+## Preliminary steps 
+
+### Mapping short and long reads 
+The polishing process begins with mapping, where we align the raw sequencing reads back to our draft assembly. This step is essential to determine exactly where each read belongs on the new contigs. We use a script based on **_minimap2_** to perform this alignment for both short and long reads, generating the evidence needed to identify and correct errors in the consensus sequence.
+
+```
+nano mapping.sh 
+```
+
 ```
 #!/bin/bash
-# Mapping short reads on assembly. Mutate SAM into BAM.
+
+# Mapping short reads on assembly. Mutate SAM into BAM
+
 # Short reads
+# [assembly]
 minimap2 -ax sr --MD -t 6 Anoste_raw.fasta SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq > Anoste_raw_sr.sam
-samtools view -Sb Anoste_raw_sr.sam > Anoste_raw_sr.bam
+samtools view -Sb Anoste_raw_sr.sam > Anoste_raw.bam
 rm Anoste_raw_sr.sam
 samtools sort -@6 -o Anoste_raw_sr_sorted.bam Anoste_raw_sr.bam
-samtools index Anoste_raw_sr_sorted.bam
-rm Anoste_rae_sr.bam
+samtools index Anoste_raw_sr.bam
+rm Anoste_raw_sr.bam
 
 # Long reads
-minimap2 -ax sr --MD -t 6 Anoste_raw.fasta SRR11672506.fastq.gz > Anoste_raw_lr.sam
+# [assembly]
+minimap2 -ax map-pb --MD -t 6 Anoste_raw.fasta SRR11672506.fastq.gz > Anoste_raw_lr.sam
 samtools view -Sb Anoste_raw_lr.sam > Anoste_raw_lr.bam
 rm Anoste_raw_lr.sam
 samtools sort -@6 -o Anoste_raw_lr_sorted.bam Anoste_raw_lr.bam
 samtools index Anoste_raw_lr_sorted.bam
-rm Anoste_rae_lr.bam
-```
-**Run script**
-```
-conda activate assembly
-nano mapping.sh
-bash mapping.sh
-```
-**Calculate short reads coverage with mosdepth** 
-```
-conda activate assembly
-mosdepth -n --fast-mode --by 500 Anoste_raw_sr Anoste_raw_sr_sorted.bam
-zcat Anoste_raw_sr.regions.bed.gz | awk '{sum += $4;count++} END {print sum / count}' > <OUTFILE_coverage>
+rm Anoste_raw_lr.bam
 ```
 
-## 01_polishing
+## Hypo
 
-**Using hypo to polish raw assembly**
+We used **_hypo_**, a genome polisher. It utilizes mapped short reads in BAM format to correct errors in the draft contigs. To run this tool we need to give in input the short-read coverage obtained with **_mosdepth_**.
+
 ```
-echo -e "$R1\n$R2" > Sr.path
-conda activate assemply
-hypo -d Anoste_raw.fasta -r @Sr.path -s 227054799 -c 136 -b Anoste_raw_sr.bam -B Anoste_raw_lr.bam -t 6
+[assembly]
+mosdepth -n --fast-mode --by 500 Anoste_raw_sr Anoste_raw_sr_sorted.bam 
+```
+
+```
+[assembly]
+echo -e "$R1\n$R2" > Sr.Path
+hypo -d Anoste_raw.fasta -r @Sr.path -s 227m -c 136 -b Anoste_raw_sr_sorted.bam -B Anoste_raw_lr_sorted.bam -t 6
 mv hypo_Anoste_raw.fasta Anoste_pol.fasta 
 ```
-### Quality check on polished assembly**
-  **N50**
+
+The output is file hypo_anoste_raw.fasta, renamed to Anoste_pol.fasta. 
+
+## Polished assembly quality check 
+
+Now that we have a polished genome assembly we redo a complete quality check, using all tools cited before (N50, BUSCO, KAT). 
+Command lines are identical, it's only need to substitute Anoste_raw.fasta -> **Anoste_pol.fasta** (Don't forget to rename the output name in command line too).
+
 ```
-assembly-stats Anoste_pol.fasta
+#[assembly]
+assembly-stats Anoste_pol.fasta > Anoste_pol.stats
 ```
-  **Busco**
 ```
-fold -w 80 Anoste_pol.fasta Anoste_pol_one.fasta
+[sequence]
+fold -w 80 Anoste_pol.fasta Anoste_pol_one.fasta  # Convert file from one to multi-line
 conda activate sequence
 busco -m geno -l $BUSCO/culicidae_odb12 -c 8 -o Anoste_pol_busco -i Anoste_pol.fasta
-cat short_summary #reading busco result summery
+cat short_summary # Reading busco result summery  
 ```
-  **KAT**
 ```
-conda activate kat
-kat comp -t 8 lo Anoste_pol 'SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq' Anoste_pol.fasta
+#[kat]
+kat comp -t 8 -o Anoste_pol 'SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq' Anoste_pol.fasta
 ```
+
+
+
+
 ## 02_contaminants
 
 ### Necessary steps before assembly decontamination
