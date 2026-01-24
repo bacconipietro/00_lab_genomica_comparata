@@ -28,7 +28,7 @@ wtdbg2 -x rs -g 227054799 -t 8 -i SRR11672506.fastq.gz -fo Anoste_raw
 The main assembler only outputs a graph structure. After the initial assembly graph is created, **_wtpoa-cns_** is required to convert that graph into a final sequence. It performs Partial Order Alignment (POA) on the long reads to compute the consensus, effectively polishing the raw assembly to produce accurate contigs in FASTA format.
 
 ```
-[assebly]
+`[assebly]`
 wtpoa-cns -t 8 -i Anoste_raw.ctg.lay.gz -fo Anoste_raw
 ``` 
 
