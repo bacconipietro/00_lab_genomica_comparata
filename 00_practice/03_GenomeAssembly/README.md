@@ -67,8 +67,6 @@ kat comp -t 8 -o Anoste_raw 'SRR11672503_1_paired.fastq SRR11672503_2_fastq' Ano
 
 # 01 Polishing 
 
-We use BlobTools which visualizes the assembly based on GC content, read coverage, and taxonomy. This allows us to spot and remove contaminants, such as bacteria or fungi present in the sample, that were accidentally assembled along with the target genome. 
-
 
 ## Preliminary steps 
 
@@ -145,42 +143,54 @@ kat comp -t 8 -o Anoste_pol 'SRR11672503_1_paired.fastq SRR11672503_2_paired.fas
 
 
 
-## 02_contaminants
+# 02 Decontamination
 
-### Necessary steps before assembly decontamination
-**Re-mapping short reads**
+At this point we have a polished final assembly. Now, one of the most important task is to remove sequence that don't regards our sample.  
+
+## Preliminary steps 
+
+At first we need to **re-map** short reads to the polished genome, long reads are no longer involved. 
+
 ```
-minimap2 --secondary=no --MD -ax sr -t 8 Anoste_pol.fasta SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq | samtools view -Sb - > Anoste_pol_sr.bam
+nano mapping_contaminants.sh
+```
+```
+#[assembly]
+minimap2 -ax sr --MD -t 8 Anoste_pol.fasta SRR11672503_1_paired_fastq SRR11672503_2_paired_fastq | samtools view -Sb - > Anoste-pol_sr.bam
 samtools sort -@8 -o Anoste_pol_sr_sorted.bam Anoste_pol_sr.bam
-rm Anoste_pol_sr.bam
 samtools index Anoste_pol_sr_sorted.bam
+rm Anoste_pol_sr.bam
 ```
-**Taxonomic contig annotation**
-```
-conda activate assembly
-blastn -query <ASSEMBLY> -db <PATH/TO/nt/> -outfmt '6 qseqid staxids bitscore std sscinames sskingdoms stitle' -max_target_seqs 25 -max_hsps 1 -num_threads 25 -evalue 1e-25 -out <OUTFILE>  #we didn't run this lines
 
-####mancano dei nomi
-```
-### Decontamination and assembly visualitation
-```
-blobtools create -i Anoste_pol.fasta -b <MAPPING_FILE> -t <BLASTN_FILE> -o <OUTPUT_PREFIX>
-blobtools view -i <JSON_FILE> -o Anoste
-blobtools plot -i <JSON_FILE> -o Anoste
+Second step is **taxonomic annotation** of contigs using **_blastn_**.
 
-####da finire mancano dei nomi
 ```
-**Different command to visualize result**
+blastn -query Anoste_pol.fasta -db <PATH/TO/nt/> -outfmt '6 qseqid staxids bitscore std sscinames sskingdoms stitle' -max_target_seqs 25 -max_hsps 1 -num_threads 25 -evalue 1e-25 -out  Anoste_blast
 ```
-grep -v '^##' Anoste_blobDB_table.txt | column -t -s $'\t' | le ss`  ##example
+
+> Lack of time, we didn't solve these tasks. Professor gave us his assembly.  
+
+## Contaminants detection and delection
+
+We use BlobTools which visualizes the assembly based on GC content, read coverage, and taxonomy. This allows us to spot and remove contaminants, such as bacteria or fungi present in the sample, that were accidentally assembled along with the target genome. 
+
 ```
-**Grep and Awk ONLY Arthropoda contings**
+#[sequence]
+blobtools create -i Anoste_pol.fasta -b Anoste_pol_sorted.bam -t Anoste_blast.tsv -o Anoste_blob
+blobtools view -i Anoste_blob.blobDB.json -o Anoste
+blobtools plot -i Anoste_blob.blobDB.json -o Anoste
+```
+
+Among outputs the most relevant is **_table.txt**, which from we can extract sequence that regards only 'Arthropoda', excluding other sequence using awk command line. **We finally obtained a polished decontaminated conting level genome assembly.**
+
 ```
 grep "Arthropoda" Anoste.Anoste_blob.blobDB.table.txt > contig_arthropoda.tsv
 wc -l contig_arthropode.tsv
 grep -w -A1 "ctg1" Anoste_pol.fasta | head
 awk '{ if ((NR>1)&&($0~/^>/)) { printf("\n%s", $0); } else if (NR==1) { printf("%s", $0); } else { printf("\t%s", $0); } }' Anoste_pol.fasta | grep -w  -Ff <(cut -f1 contig_arthropoda.tsv) - | tr "\t" "\n" > Anoste_decontaminated.fasta
 ```
+
+
 
 ### Scaffolding 
 ```
