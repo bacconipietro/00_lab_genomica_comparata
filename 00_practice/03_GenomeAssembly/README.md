@@ -1,5 +1,5 @@
 # Genome Assembly
-Since sequencing machines cannot read a whole chromosome from start to finish in one go (like reading a book), they instead produce millions of tiny, scrambled fragments. Assembly is the computational process of overlapping and stitching these fragments back together to reconstruct the original picture.
+Since sequencing machines cannot read a whole chromosome from start to finish in one go, they instead produce millions of tiny, scrambled fragments. Assembly is the computational process of overlapping and stitching these fragments back together to reconstruct the original picture.
 
 ## Key assembly level
 
