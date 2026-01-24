@@ -192,8 +192,17 @@ awk '{ if ((NR>1)&&($0~/^>/)) { printf("\n%s", $0); } else if (NR==1) { printf("
 
 
 
-### Scaffolding 
+
+# 03 Scaffolding 
+
+Now we proceed we scaffold stage. To further improve the assembly, we employed [**_ragtag_**](https://github.com/malonge/RagTag). This suite uses a reference genome from a closely related species to guide the correction and ordering of our contigs.
+
+### Refernce-based error correction
 ```
 ragtag.py correct -t 20 <REFERENCE_GENOME> <DRAFT_GENOME>
-ragtag.py scaffold -C -t 20 -o <OUTPUT_DIX> <REFERENCE_GENOME> <CORRECTED_DRAFTGENOME>
 ```
+### Scaffolding 
+```
+ragtag.py scaffold -C -t 20 -o <OUTPUT_DIR> <REFERENCE_GENOME> <CORRECTED_DRAFTGENOME>
+```
+> Similarly in decontamination directory we didn't execute this commands. 
