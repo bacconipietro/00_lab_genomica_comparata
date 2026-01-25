@@ -6,8 +6,8 @@ FASTQ is standard text-file format that stores both a nucleotide sequence and it
 We used **_fastqc_** tool to obtain reads quality. Results are reported in two .html files.  
 
 
-```
-# [assembly]
+```bash
+[assembly]
 conda activate assembly
 fastqc SRR11672503_1.fastq.gz SRR11672503_2.fastq.gz
 ```
@@ -17,8 +17,8 @@ fastqc SRR11672503_1.fastq.gz SRR11672503_2.fastq.gz
 
 Trimming is a data cleaning process performed on raw FASTQ files before analysis. It involves computationally removing unwanted sequences from the ends of the reads to ensure that only high-quality data is used for alignment or assembly. We used **_trimmomatic-0.40_** in _assembly_ enviroment. 
 
-```
-# [assembly]
+```bash
+[assembly]
 trimmomatic PE -threads 8 -phred33 SRR11672503_1.fastq.gz SRR11672503_2.fastq.gz SRR11672503_1_paired.fastq SRR11672503_1_unpaired.fastq SRR11672503_2_paired.fastq SRR11672503_2_unpaired.fastq ILLUMINACLIP:/opt/miniforge3/envs/assembly/share/trimmomatic-0.40-0/adapters/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36 2> stats_trimmomatic.log
 ```
 
@@ -31,8 +31,8 @@ It would be a good idea to redo _fastqc_ after trimming process, just to be sure
 KAT is a specialized suite designed to evaluate the structure and completeness of genome assemblies. By comparing k-mer distributions between raw sequencing reads and the final assembly, KAT helps verify that the assembly accurately represents the original data. A k-mer is simply a substring of DNA of length _k_. We used **_kat_** command in _kat_ enviroment. 
 
 
-```
-#[kat]
+```bash
+[kat]
 conda activate kat
 kat hist -t 8 -m 27 -o Anoste SRR11672503_1_paired_fastqc.html SRR11672503_2_paired_fastqc.html
 ```
