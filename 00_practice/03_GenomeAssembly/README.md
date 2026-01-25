@@ -9,6 +9,7 @@ Since sequencing machines cannot read a whole chromosome from start to finish in
 
 + **Chromosome**: A scaffold that corresponds to a full physical chromosome of the organism. This level rapresents a realistic biological situation. To be assembled it requires additional data like genetic maps and 3D structure of DNA. 
 
+-----
 
 # 00 Raw assembly
 
@@ -17,8 +18,8 @@ Since sequencing machines cannot read a whole chromosome from start to finish in
 ##### Assemble reads
 Proceeding with assembling our reads data. We used [Wtdbg2](https://github.com/ruanjue/wtdbg2) as assembler optimized for long-read data. It is important to remember that genome assembly is an empirical process; there is no single "best" assembler. 
  
-``` 
-[assembly]
+```bash 
+#[assembly]
 ln -s /home/PERSONALE/mirko.martini3/Lab_CompGeno/00_practice/00_data/00_reads/SRR11672506.fastq.gz
 conda activate assembly
 wtdbg2 -x rs -g 227054799 -t 8 -i SRR11672506.fastq.gz -fo Anoste_raw 
@@ -27,8 +28,8 @@ wtdbg2 -x rs -g 227054799 -t 8 -i SRR11672506.fastq.gz -fo Anoste_raw
 ##### Produce final consensus in fasta format  
 The main assembler only outputs a graph structure. After the initial assembly graph is created, **_wtpoa-cns_** is required to convert that graph into a final sequence. It performs Partial Order Alignment (POA) on the long reads to compute the consensus, effectively polishing the raw assembly to produce accurate contigs in FASTA format.
 
-```
-[assebly]
+```bash
+#[assebly]
 wtpoa-cns -t 8 -i Anoste_raw.ctg.lay.gz -fo Anoste_raw
 ``` 
 
@@ -38,8 +39,8 @@ Three main quality check tools: **_N50_**, **_BUSCO_**, **_KAT_**.
 
 + **N50** is a statistical metric used to assess the **contiguousness** of an assembly. It is a weighted median that places greater emphasis on longer contigs. The name refers to the length of the shortest contig in the set of largest contigs that together cover at least 50% of the total assembly size. A higher N50 indicates a more continuous assembly while a low value means your genome is highly fragmented. 
 
-```
-[assembly]
+```bash
+#[assembly]
 assembly-stats Anoste_raw.fasta > Anoste_raw.stats
 ```
  
@@ -47,8 +48,8 @@ assembly-stats Anoste_raw.fasta > Anoste_raw.stats
 
 **<ins>It is essential to ensure that the input is in multi-line format.</ins>**
  
-```
-[sequence]
+```bash
+#[sequence]
 conda activate sequence
 export NUMEXPR_MAX_THREADS= 80
 busco -m geno -l $BUSCO/culicidae_odb12 -c 6 -o Anoste_raw.busco -i Anoste_raw.fasta
@@ -56,14 +57,13 @@ busco -m geno -l $BUSCO/culicidae_odb12 -c 6 -o Anoste_raw.busco -i Anoste_raw.f
 
 + **KAT** compares the k-mers in your final assembly against the k-mers in your raw sequencing reads. It creates a "Spectra Plot" to visualize how often k-mers appear, just to clarify if we assembled data or noise. It detects missing content, duplication and contamination. 
 
-```
-[kat]
+```bash
+#[kat]
 conda activate kat
 kat comp -t 8 -o Anoste_raw 'SRR11672503_1_paired.fastq SRR11672503_2_fastq' Anoste_raw.fasta
 ```
 
-
-
+-----
 
 # 01 Polishing 
 
@@ -73,11 +73,11 @@ kat comp -t 8 -o Anoste_raw 'SRR11672503_1_paired.fastq SRR11672503_2_fastq' Ano
 ### Mapping short and long reads 
 The polishing process begins with mapping, where we align the raw sequencing reads back to our draft assembly. This step is essential to determine exactly where each read belongs on the new contigs. We use a script based on **_minimap2_** to perform this alignment for both short and long reads, generating the evidence needed to identify and correct errors in the consensus sequence.
 
-```
+```bash
 nano mapping.sh 
 ```
 
-```
+```bash
 #!/bin/bash
 
 # Mapping short reads on assembly. Mutate SAM into BAM
@@ -105,13 +105,13 @@ rm Anoste_raw_lr.bam
 
 We used **_hypo_**, a genome polisher. It utilizes mapped short reads in BAM format to correct errors in the draft contigs. To run this tool we need to give in input the short-read coverage obtained with **_mosdepth_**.
 
-```
-[assembly]
+```bash
+#[assembly]
 mosdepth -n --fast-mode --by 500 Anoste_raw_sr Anoste_raw_sr_sorted.bam 
 ```
 
-```
-[assembly]
+```bash
+#[assembly]
 echo -e "$R1\n$R2" > Sr.Path
 hypo -d Anoste_raw.fasta -r @Sr.path -s 227m -c 136 -b Anoste_raw_sr_sorted.bam -B Anoste_raw_lr_sorted.bam -t 6
 mv hypo_Anoste_raw.fasta Anoste_pol.fasta 
@@ -124,23 +124,23 @@ The output is file hypo_anoste_raw.fasta, renamed to Anoste_pol.fasta.
 Now that we have a polished genome assembly we redo a complete quality check, using all tools cited before (N50, BUSCO, KAT). 
 Command lines are identical, it's only need to substitute Anoste_raw.fasta -> **Anoste_pol.fasta** (Don't forget to rename the output name in command line too).
 
-```
+```bash
 #[assembly]
 assembly-stats Anoste_pol.fasta > Anoste_pol.stats
 ```
-```
-[sequence]
+```bash
+#[sequence]
 fold -w 80 Anoste_pol.fasta Anoste_pol_one.fasta  # Convert file from one to multi-line
 conda activate sequence
 busco -m geno -l $BUSCO/culicidae_odb12 -c 8 -o Anoste_pol_busco -i Anoste_pol.fasta
 cat short_summary # Reading busco result summery  
 ```
-```
+```bash
 #[kat]
 kat comp -t 8 -o Anoste_pol 'SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq' Anoste_pol.fasta
 ```
 
-
+-----
 
 
 # 02 Decontamination
@@ -151,10 +151,10 @@ At this point we have a polished final assembly. Now, one of the most important 
 
 At first we need to **re-map** short reads to the polished genome, long reads are no longer involved. 
 
-```
+```bash
 nano mapping_contaminants.sh
 ```
-```
+```bash
 #[assembly]
 minimap2 -ax sr --MD -t 8 Anoste_pol.fasta SRR11672503_1_paired_fastq SRR11672503_2_paired_fastq | samtools view -Sb - > Anoste-pol_sr.bam
 samtools sort -@8 -o Anoste_pol_sr_sorted.bam Anoste_pol_sr.bam
@@ -164,7 +164,7 @@ rm Anoste_pol_sr.bam
 
 Second step is **taxonomic annotation** of contigs using **_blastn_**.
 
-```
+```bash
 blastn -query Anoste_pol.fasta -db <PATH/TO/nt/> -outfmt '6 qseqid staxids bitscore std sscinames sskingdoms stitle' -max_target_seqs 25 -max_hsps 1 -num_threads 25 -evalue 1e-25 -out  Anoste_blast
 ```
 
@@ -174,7 +174,7 @@ blastn -query Anoste_pol.fasta -db <PATH/TO/nt/> -outfmt '6 qseqid staxids bitsc
 
 We use BlobTools which visualizes the assembly based on GC content, read coverage, and taxonomy. This allows us to spot and remove contaminants, such as bacteria or fungi present in the sample, that were accidentally assembled along with the target genome. 
 
-```
+```bash
 #[sequence]
 blobtools create -i Anoste_pol.fasta -b Anoste_pol_sorted.bam -t Anoste_blast.tsv -o Anoste_blob
 blobtools view -i Anoste_blob.blobDB.json -o Anoste
@@ -183,14 +183,14 @@ blobtools plot -i Anoste_blob.blobDB.json -o Anoste
 
 Among outputs the most relevant is **_table.txt**, which from we can extract sequence that regards only 'Arthropoda', excluding other sequence using awk command line. **We finally obtained a polished decontaminated conting level genome assembly.**
 
-```
+```bash
 grep "Arthropoda" Anoste.Anoste_blob.blobDB.table.txt > contig_arthropoda.tsv
 wc -l contig_arthropode.tsv
 grep -w -A1 "ctg1" Anoste_pol.fasta | head
 awk '{ if ((NR>1)&&($0~/^>/)) { printf("\n%s", $0); } else if (NR==1) { printf("%s", $0); } else { printf("\t%s", $0); } }' Anoste_pol.fasta | grep -w  -Ff <(cut -f1 contig_arthropoda.tsv) - | tr "\t" "\n" > Anoste_decontaminated.fasta
 ```
 
-
+-----
 
 
 # 03 Scaffolding 
@@ -198,11 +198,11 @@ awk '{ if ((NR>1)&&($0~/^>/)) { printf("\n%s", $0); } else if (NR==1) { printf("
 Now we proceed we scaffold stage. To further improve the assembly, we employed [**_ragtag_**](https://github.com/malonge/RagTag). This suite uses a reference genome from a closely related species to guide the correction and ordering of our contigs.
 
 ### Refernce-based error correction
-```
+```bash
 ragtag.py correct -t 20 <REFERENCE_GENOME> <DRAFT_GENOME>
 ```
 ### Scaffolding 
-```
+```bash
 ragtag.py scaffold -C -t 20 -o <OUTPUT_DIR> <REFERENCE_GENOME> <CORRECTED_DRAFTGENOME>
 ```
 > Similarly in decontamination directory we didn't execute this commands. 
