@@ -46,3 +46,21 @@ To link our protein sequences to biological functions, we use Gene Ontology term
 -----
 
 ## Gene Ontology (GO) Functional enrichment
+
+
+### Input 
+
+```bash
+awk -F'\t' '{
+  gsub(/@.*/,"",$1); gsub(/\([^)]*\)/,"",$2); gsub(/\|/,",",$2);
+  split($2, a, ",");
+  for(i in a) if(a[i]!="") seen[$1,a[i]]=1
+}
+END {
+  for(k in seen){
+    split(k, b, SUBSEP)
+    groups[b[1]] = (groups[b[1]] ? groups[b[1]] "," b[2] : b[2])
+  }
+  for(g in groups) print g "\t" groups[g]
+}' <(cut -f1,14 longest_pietro.tsv) | grep -v "-" > go_back.ts
+```
