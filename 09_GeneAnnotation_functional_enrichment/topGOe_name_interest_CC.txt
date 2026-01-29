@@ -1,0 +1,4 @@
+GO.ID	Term	Annotated	Significant	Expected	Classic_Fisher
+GO:0043235	receptor complex	48	1	0.02	0.016
+GO:1902495	transmembrane transporter complex	72	1	0.02	0.025
+GO:1990351	transporter complex	75	1	0.03	0.026

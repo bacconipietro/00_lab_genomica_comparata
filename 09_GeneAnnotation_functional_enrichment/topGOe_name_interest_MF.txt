@@ -1,0 +1,2 @@
+GO.ID	Term	Annotated	Significant	Expected	Classic_Fisher
+GO:0004714	transmembrane receptor protein tyrosine kinase activity	19	1	0.01	0.0074

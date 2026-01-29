@@ -1,0 +1,4 @@
+GO.ID	Term	Annotated	Significant	Expected	Classic_Fisher
+GO:0033674	positive regulation of kinase activity	27	1	0.01	0.0099
+GO:0007169	cell surface receptor protein tyrosine kinase signaling pathway	40	1	0.01	0.0146
+GO:0007167	enzyme-linked receptor protein signaling pathway	72	1	0.03	0.0262
