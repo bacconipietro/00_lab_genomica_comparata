@@ -19,6 +19,7 @@ python 3.13.5
 + diamond 2.1.10
 + fastqc 0.12.1
 + hypo 1.0.3
++ maker 3.01.04
 + minimap2 2.28
 + mosdepth 0.3.10  
 + samtools 1.21
