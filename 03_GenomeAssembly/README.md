@@ -60,7 +60,7 @@ busco -m geno -l $BUSCO/culicidae_odb12 -c 6 -o Anoste_raw.busco -i Anoste_raw.f
 ```bash
 #[kat]
 conda activate kat
-kat comp -t 8 -o Anoste_raw 'SRR11672503_1_paired.fastq SRR11672503_2_fastq' Anoste_raw.fasta
+kat comp -t 8 -o Anoste_raw 'SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq' Anoste_raw.fasta
 ```
 
 -----
