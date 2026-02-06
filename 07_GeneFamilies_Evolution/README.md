@@ -78,3 +78,63 @@ for k in {1..5}; do for n in {1..10}; do mkdir -p 00_2L/${k}K/${n}N; cafe5 -i Ge
 
 + **Epsilon**: this represents the proportion of static gene families—those that show zero turnover across the entire tree. Including this parameter helps prevent the model from overestimating rates by forcing static families into slow-evolving categories.
 
+
+## AIC-BIC model selection
+To decide which run is the best, we use Information Criteria: AIC and BIC. 
+
+#### _AIC_ 
+Akaike Information Criterion is designed to estimate the relative quality of statistical models for a given set of data. It deals with the trade-off between the goodness of fit and the simplicity of the model. The model with the lowest AIC is considered the best. 
+
++ $$AIC = 2k - 2\ln(L)$$
+
+#### _BIC_
+Bayesian Information Criterion is similar to AIC but is often more "conservative." It introduces a heavier penalty for models with more parameters, especially as your sample number of gene families increases. 
+
++ $$BIC = k\ln(n) - 2\ln(L)$$
+
+
+The following pipeline execute: 
++ Grepping the likelihood values from the 10 technical replicates. For-loop for one $\Gamma$. 
+```bash
+for folder in */; do lnL=$(grep "lnL" ${folder}/Base_results.txt | grep -oE "[0-9]*([\.,][0-9]*)?"); L=$(grep "Lambda" ${folder}/Base_results.txt | grep -oE "[0-9]*\.[0-9]*"); E=$(grep "Epsilon" ${folder}/Base_results.txt | grep -oE "[0-9]*\.[0-9]*"); echo -e "$lnL\t$L\t$E" >> sum_results.tsv; done
+```
+
++ Grepping the likelihood values from the 10 technical replicates. For-loop for 2 < $\Gamma$ < 5.
+```bash
+for i in */; do cd $i; for folder in */; do lnL=$(grep "lnL" ${folder}/Gamma_results.txt | grep -oE "[0-9]*([\.,][0-9]*)?"); L=$(grep "Lambda" ${folder}/Gamma_results.txt | grep -oE "[0-9]*\.[0-9]*"); E=$(grep "Epsilon" ${folder}/Gamma_results.txt | grep -oE "[0-9]*\.[0-9]*"); A=$(grep "Alpha" ${folder}/Gamma_results.txt | grep -oE "[0-9]*\.[0-9]*"); echo -e "$lnL\t$L\t$E\t$A" >> sum_results.tsv; done; cd ..; done
+```
+
++ A for-loop that extracts the best likelihood from each `sum_results.tsv` and overwrites it into `all_L.txt`. 
+```bash
+for f in */; do cut -f1 "$f"/sum_results.tsv | sort -n | head -n1; done > all_L.txt
+```
+
+The first likelihood value belongs to one $\Gamma$ value run, the second to the run with two values, and so on. To perform the test, it is necessary to manually define the number of 'free parameters' for each run, which are determined by summing possible values assumed by $\lambda$ and $\Gamma$. It is also necessary to define natural logarithm ($\ln$) of trees' number reported in `Base_asr.tre` or `Gamma_asr.tre`.
+
+```bash
+nano all_L.txt
+
+84709.6  2
+81079.7  3
+80500.5  4
+80441.4  5
+80439.8  6
+```
+```bash
+grep "OG" Base_asr.tre | wc -l 
+10022
+```
+```
+ln(10022) = 9.21
+```
+
+Finally, we perform the calculation of the two indicators, which will be carried out separately for both the `00_1L` and `00_2L` runs, to then compare them and choose the best-fitting model. 
+```bash
+paste --delimiters=$"\t" all_L.txt <(while IFS=$'\t' read -r L k; do echo "2*$k + 2*$L" | bc; done < all_L.txt) <(while IFS=$'\t' read -r L k; do echo "$k*9.21 + 2*$L" | bc; done < all_L.txt) | sort -k4,4n > AIC_BIC.tsv
+```
+
+The final values for the two respective CAFE runs are reported in `AIC_BIC.tsv`. The run with the lowest AIC value describes our model better than all others. The best model features 5 free parameters, meaning the correct folder is `00_1L/4K`. The best likelihood value points to technical replicate `/9N`. 
+```
+80441.4 5       160892.8        160928.85	(1L)
+80435.4 7       160884.8        160935.27	(2L)
+```
