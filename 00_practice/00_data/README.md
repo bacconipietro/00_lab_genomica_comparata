@@ -3,6 +3,20 @@
 To conduct a comparative genomic analysis we need genomes species to compare. We start creating a dataset with our model organism and 4/5 other species, chosing them based on our biological study purpose.
 Here it's presented a mosquitos genomes [dataset.tsv](https://github.com/bacconipietro/00_lab_genomica_comparata/blob/main/00_practice/00_data/dataset.tsv) searched on NCBI, the model we chose to study is [**_Anopheles stephensi_**](https://mesamalaria.org/resource-hub/pmi-anopheles-stephensi-resource-page/). 
 
+Mosquitoes are predominantly tropical and subtropical vectors, yet several lineages have successfully colonized temperate regions. This ecological transition requires for sure significant physiological and genomic modifications to survive overwintering, freeze tolerance, and altered metabolic rates. To identify the genomic signatures we selected two species known to inhabit higher latitudes or cooler altitudes, and three one restricted to equatorial or warm regions. 
+
+| AN | Species | Code | Regions |
+| :---: | :---:	| :---: | :---: |  
+| GCA_000441895.2 | *Anopheles_sinensis* | Anosin | temperate |
+| GCF_029784135.1 | *Toxorhynchites_rutilus_septentrionalis* | Toxrut | temperate |
+| GCF_943734745.1 | *Anopheles_darlingi* | Anodar | tropical |
+| GCF_943734735.2 | *Anopheles_gambiae* | Anogam | troipcal |
+| GCF_943734845.2 | *Anopheles_funestus* | Anofun | tropical | 
+
+
+
+
+
 -----
 
 ## Download
