@@ -26,7 +26,7 @@ Every folder reports a specific passage, click on titles to figure out what we h
 + [06_DivergenceTime_Estimation](https://github.com/bacconipietro/00_lab_genomica_comparata/tree/main/06_DivergenceTime_Estimation):
   It explains the construction of an ultrametric time tree using IQ-TREE with the Least Square Dating (LSD2) algorithm, chosen as a faster alternative to Bayesian methods for dating phylogenomic inferences. Calibration process is broke down, using divergence dates retrieved from [TimeTree.org](https://timetree.org/) to constrain specific nodes and the final execution of the molecular clock analysis to estimate divergence times across the phylogeny.
 
-+ [07_GeneFamilies_Evolution](https://github.com/bacconipietro/00_lab_genomica_comparata/tree/main/06_DivergenceTime_Estimation):
++ [07_GeneFamilies_Evolution](https://github.com/bacconipietro/00_lab_genomica_comparata/tree/main/07_GeneFamilies_Evolution):
   The section details the analysis of gene family turnover using CAFE, describing the preparation of input data and the execution of stochastic birth-death models to estimate global ($1\lambda$) and local ($2\lambda$) evolutionary rates. Here is listed the statistical model selection pipeline, utilizing custom Bash scripts to calculate AIC and BIC scores from likelihood outputs to identify the optimal parameter configuration for detecting significant expansions and contractions.
 
 + [09_GeneAnnotation_functional_enrichment](https://github.com/bacconipietro/00_lab_genomica_comparata/tree/main/09_GeneAnnotation_functional_enrichment):
