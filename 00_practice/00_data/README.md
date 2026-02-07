@@ -10,7 +10,7 @@ Mosquitoes are predominantly tropical and subtropical vectors, yet several linea
 | GCA_000441895.2 | *Anopheles_sinensis* | Anosin | temperate |
 | GCF_029784135.1 | *Toxorhynchites_rutilus_septentrionalis* | Toxrut | temperate |
 | GCF_943734745.1 | *Anopheles_darlingi* | Anodar | tropical |
-| GCF_943734735.2 | *Anopheles_gambiae* | Anogam | troipcal |
+| GCF_943734735.2 | *Anopheles_gambiae* | Anogam | tropical |
 | GCF_943734845.2 | *Anopheles_funestus* | Anofun | tropical | 
 
 
