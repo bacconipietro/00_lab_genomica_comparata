@@ -34,7 +34,7 @@ KAT is a specialized suite designed to evaluate the structure and completeness o
 ```bash
 #[kat]
 conda activate kat
-kat hist -t 8 -m 27 -o Anoste SRR11672503_1_paired_fastqc.html SRR11672503_2_paired_fastqc.html
+kat hist -t 8 -m 27 -o Anoste SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq
 ```
 
 Two main outputs: **Anoste.hist** and **Anoste.png**. To visualize our main results it's necessary to remove all comments and upload Anoste.hist on [genomescope](http://genomescope.org/genomescope2.0/). With this tool we can read coverage results about k-mer distributions, image below. Usually the tallest pick is for homozygosity while the short one rapresents eterozigosity. (Unfortunately our genoscope wasn't correct, for this reason i didn't upload .jpg files). 
