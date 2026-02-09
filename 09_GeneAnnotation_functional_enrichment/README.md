@@ -102,7 +102,7 @@ gene_universe <- readMappings(file =
 geneUniverse <- names(gene_universe)
 
 genesOfInterest <- read.table("interesting.txt",header=FALSE)
-list_interest1 <- list( "interesting" = genesOfInterest)
+list_interest1 <- list( "name_interest" = genesOfInterest)
 
 #upload of gene of interest
 GOenrichment <- function(trait, trait_name) {
