@@ -80,11 +80,11 @@ grep "Toxrut<1>\*" Gamma_asr.tre | grep "<3>\*" | grep "<2>_" | grep "<4>_" | gr
 
 nano interesting.txt
 
-OG0000027_00
-OG0000045_00
-OG0000060_00
-OG0000102_00
-OG0000121_00
+OG0000027
+OG0000045
+OG0000060
+OG0000102
+OG0000121
 ```
 > This passage must be run in the CAFE directory that we selected as best model previously. In this case the correct path is:
 00_lab_genomica_comparata/07_GeneFamilies_Evolution/00_1L/4K/9N/Gamma_asr.tre 
@@ -98,7 +98,7 @@ library(tidyverse)
 library(topGO)
 
 gene_universe <- readMappings(file =
-                                "go_back.tsv)
+                                "go_back_collapsed.tsv)
 geneUniverse <- names(gene_universe)
 
 genesOfInterest <- read.table("interesting.txt",header=FALSE)
