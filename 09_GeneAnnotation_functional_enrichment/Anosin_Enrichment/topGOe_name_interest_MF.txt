@@ -1,0 +1,7 @@
+GO.ID	Term	Annotated	Significant	Expected	Classic_Fisher
+GO:0008506	sucrose:proton symporter activity	5	1	0.01	0.0068
+GO:0004586	ornithine decarboxylase activity	6	1	0.01	0.0082
+GO:0080019	alcohol-forming very long-chain fatty acyl-CoA reductase activity	17	1	0.02	0.023
+GO:0008081	phosphoric diester hydrolase activity	19	1	0.03	0.0257
+GO:0016620	oxidoreductase activity, acting on the aldehyde or oxo group of donors, NAD or NADP as acceptor	24	1	0.03	0.0324
+GO:0016903	oxidoreductase activity, acting on the aldehyde or oxo group of donors	29	1	0.04	0.039

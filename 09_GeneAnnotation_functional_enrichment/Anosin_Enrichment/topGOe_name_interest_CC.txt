@@ -1,0 +1,2 @@
+GO.ID	Term	Annotated	Significant	Expected	Classic_Fisher
+GO:0043235	receptor complex	48	2	0.05	0.00099
