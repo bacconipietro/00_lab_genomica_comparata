@@ -133,7 +133,7 @@ gff3_merge -d <DATASTORE INDEX FILE>
 ```
 Conclude the first round with statistic evaluation using [AGAT](https://github.com/NBISweden/AGAT). Additionally, to verify the first round proterome it's possible run BUSCO.     
 ```bash
-#[sequence]
+#[GAAS]
 agat_sp_statistics.pl --gff file.gff -o <output_file>
 agat_sq_repeats_analyzer.pl -i <input_file> -o <output_file>
 ```
@@ -181,7 +181,7 @@ Execute MAKER again and collect the resulting GFF, protein, and transcript files
 
 This command line returns round annotation summary statistics.
 ```bash
-#[sequence]
+#[GAAS]
 gaas_maker_merge_outputs_from_datastore.pl Anoste_rnd2.maker.output/ #script for summary statistic, merge fastas and gffs
 agat_sq_repeats_analyzer.pl --gff maker_mix.gff -o Anoste_rnd2_repeats.txt #use maker_mix, which is the complete one
 ```
